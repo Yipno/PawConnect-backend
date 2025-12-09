@@ -67,18 +67,18 @@ router.post('/auth', async (req, res) => {
     // look for user
     const data = await User.findOne({ email });
     if (!data) {
-      return res
-        .status(404)
-        .json({ result: false, error: "Nous n'avons pas trouvé cet utilisateur" });
-    } else if (data && bcrypt.compareSync(password, data.password)) {
-      // if user's found & password's ok send back user's infos to frontend
-      res.json({
-        result: true,
-        user: { firstName: data.firstName, token: data.token, role: data.role, id: data._id },
-      });
-    } else {
+      return res.status(404).json({ result: false, error: 'Utilisateur introuvable' });
+    }
+
+    const passwordMatch = bcrypt.compareSync(password, data.password);
+    if (!passwordMatch) {
       return res.status(403).json({ result: false, error: 'Mot de passe incorrect' });
     }
+    // if user's found & password's ok send back user's infos to frontend
+    res.json({
+      result: true,
+      user: { firstName: data.firstName, token: data.token, role: data.role, id: data._id },
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ result: false, error: 'Probleme avec la base de données' });
