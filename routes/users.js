@@ -17,13 +17,15 @@ const signupLimiter = rateLimit({
 });
 */
 
+//SIGNUP ROUTE
+
 router.post('/signup', (req, res) => {
   if (!checkBody(req.body, ['lastName', 'firstName', 'email', 'password'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
 
-  const { lastName, firstName, email, password, role, establishment_ref } = req.body;
+  const { lastName, firstName, email, password, role, establishmentRef } = req.body;
   // Check the length of password
   if (password.length < 6) {
     return res.json({ result: false, error: 'Password must be at least 6 characters' });
@@ -42,7 +44,7 @@ router.post('/signup', (req, res) => {
         token: uid2(32),
         createdAt: Date.now(),
         role: role || 'civil',
-        establishmentRef: establishment_ref || null,
+        establishmentRef: establishmentRef || null,
       });
 
       newUser.save().then((savedUser) => {
