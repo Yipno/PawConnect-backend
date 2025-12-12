@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-require('../models/connection');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 const uid2 = require('uid2');
@@ -21,14 +20,25 @@ const signupLimiter = rateLimit({
 
 router.post('/signup', (req, res) => {
   if (!checkBody(req.body, ['lastName', 'firstName', 'email', 'password'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
+    res.status(400).json({ result: false, error: 'Des informations sont manquantes.' });
     return;
   }
 
   const { lastName, firstName, email, password, role, establishmentRef } = req.body;
+
+  // Check the email format
+  const EMAIL_REGEX =
+    /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\-]*\.)+[a-z]{2,}$/i;
+  if (!EMAIL_REGEX.test(email)) {
+    return res.status(400).json({ result: false, error: 'Email invalide.' });
+  }
+
   // Check the length of password
   if (password.length < 6) {
-    return res.json({ result: false, error: 'Password must be at least 6 characters' });
+    return res.status(400).json({
+      result: false,
+      error: 'Le mot de passe doit contenir au moins 6 caractères.',
+    });
   }
 
   // Check if the user has not already been registered by this email
@@ -47,9 +57,9 @@ router.post('/signup', (req, res) => {
         establishmentRef: establishmentRef || null,
       });
 
-      newUser.save().then((savedUser) => {
-        res.json({ 
-          result: true, 
+      newUser.save().then(savedUser => {
+        res.json({
+          result: true,
           user: {
             id: savedUser._id,
             firstName: savedUser.firstName,
@@ -59,7 +69,7 @@ router.post('/signup', (req, res) => {
         });
       });
     } else {
-      res.json({ result: false, error: 'This Email is already used by an User' });
+      res.status(400).json({ result: false, error: 'Cet email est déjà utilisé.' });
     }
   });
 });
@@ -67,7 +77,7 @@ router.post('/signup', (req, res) => {
 // ROUTE LOGIN
 router.post('/auth', async (req, res) => {
   if (!checkBody(req.body, ['email', 'password'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
+    res.status(400).json({ result: false, error: 'Des informations sont manquantes.' });
     return;
   }
 
@@ -100,6 +110,5 @@ router.get('/', async (req, res) => {
   const data = await User.find();
   res.json({ result: true, data });
 });
-
 
 module.exports = router;
