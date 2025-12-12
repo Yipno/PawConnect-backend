@@ -7,6 +7,7 @@ const animalSchema = mongoose.Schema({
   title: { type: String, required: true },
   desc: { type: String, required: true },
   state: [{ type: String, required: true }],
+  priority: String, // enum: ['URGENT', 'IMPORTANT', 'MODERE', 'FAIBLE'] },
   photoUrl: String,
   status: { type: String, enum: ['nouveau', 'en cours', 'terminé'] },
   priority: { type: String, enum: ['Modéré', 'Important', 'Urgent'] },

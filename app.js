@@ -10,7 +10,8 @@ var usersRouter = require('./routes/users');
 var animalsRouter = require('./routes/animals');
 
 var app = express();
-
+const fileUpload = require('express-fileupload');
+app.use(fileUpload());
 const cors = require('cors');
 app.use(cors());
 
@@ -23,5 +24,4 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/animals', animalsRouter);
-
 module.exports = app;
