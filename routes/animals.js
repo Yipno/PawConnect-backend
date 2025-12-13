@@ -8,7 +8,8 @@ const Animal = require('../models/animals');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 const { setPriority } = require('../modules/setPriority');
-const { checkRoleCivil, getUserIdByToken } = require('../middleware/checkRoleCivil');
+const { checkRoleCivil } = require('../middleware/checkRoleCivil');
+const { getUserIdWithToken } = require('../middleware/getUserIdWithToken');
 
 router.get('/civil/:token', checkRoleCivil, (req, res) => {
   // req.user vient du middleware checkRoleCivil (req.user = user).
@@ -33,6 +34,7 @@ router.get('/civil/:token', checkRoleCivil, (req, res) => {
     });
 });
 
+// GET ALL ANIMAL REPORTS
 router.get('/', async (req, res) => {
   try {
     const animals = await Animal.find().sort({ date: -1 });
@@ -43,7 +45,19 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/add', getUserIdByToken, async (req, res) => {
+//GET ANIMAL REPORTS BY USER
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const userReports = await Animal.find({ reporter: id }).sort({ date: -1 });
+    res.json({ result: true, userReports });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ result: false, error: 'Erreur serveur' });
+  }
+});
+
+router.post('/add', getUserIdWithToken, async (req, res) => {
   if (
     !checkBody(req.data, ['location', 'animalType', 'state', 'title', 'desc']) ||
     !req.files.photoReport ||
@@ -81,6 +95,7 @@ router.post('/add', getUserIdByToken, async (req, res) => {
       state,
       priority,
       photoUrl,
+      status: 'nouveau',
       reporter: req.userId,
       handlers: [],
       history: [],
