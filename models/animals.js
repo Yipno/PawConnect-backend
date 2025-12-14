@@ -10,7 +10,6 @@ const animalSchema = mongoose.Schema({
   priority: String, // enum: ['URGENT', 'IMPORTANT', 'MODERE', 'FAIBLE'] },
   photoUrl: String,
   status: { type: String, enum: ['nouveau', 'en cours', 'terminé'] },
-  priority: { type: String, enum: ['Modéré', 'Important', 'Urgent'] },
   reporter: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   handlers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
   history: [
@@ -18,7 +17,6 @@ const animalSchema = mongoose.Schema({
       date: Date,
       status: String,
       action: String,
-      description: String,
       handler: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     },
   ],
