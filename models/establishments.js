@@ -3,14 +3,13 @@ const mongoose = require('mongoose');
 const establishmentSchema = mongoose.Schema({
   admin: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   name: { type: String, required: true },
-  adress: {
+  address: {
     street: String,
     city: String,
-    zipCode: Number,
-    required: true,
+    zipCode: String,
   },
   location: { lat: Number, long: Number },
-  phone: { type: Number, required: true },
+  phone: { type: String, required: true },
   email: { type: String, required: true },
   logo: String,
   url: String,
@@ -18,4 +17,4 @@ const establishmentSchema = mongoose.Schema({
 });
 
 const Establishment = mongoose.model('establishments', establishmentSchema);
-module.export = Establishment;
+module.exports = Establishment;
