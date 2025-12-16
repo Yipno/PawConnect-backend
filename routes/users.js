@@ -124,8 +124,8 @@ router.post('/auth', async (req, res) => {
 // });
 
 //ROUTE UPDATE PROFILE
-router.put('/updateProfile', (req, res) => {
-  const { token, firstName, lastName, password, establishment, email, phone } = req.body;
+router.put('/updateProfile', checkEmailUnique, (req, res) => {
+  const { token, firstName, lastName, password, establishmentRef, email, phone } = req.body;
 
   if (!token) {
     return res.status(400).json({ result: false, error: 'Token requis pour identification' });
