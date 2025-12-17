@@ -3,8 +3,11 @@ var router = express.Router();
 
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
-const uid2 = require('uid2');
+//const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
+
+const jwt = require('jsonwebtoken');
+const authJwt = require('../middleware/JWT');
 
 /* ---ADD Security - max 10 request by ID each 15 min --- 
 
@@ -42,7 +45,7 @@ router.post('/signup', (req, res) => {
   }
 
   // Check if the user has not already been registered by this email
-  User.findOne({ email: req.body.email }).then(data => {
+  User.findOne({ email: req.body.email }).then((data) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
 
@@ -51,13 +54,21 @@ router.post('/signup', (req, res) => {
         firstName,
         email,
         password: hash,
-        token: uid2(32),
         createdAt: Date.now(),
         role: role || 'civil',
         establishmentRef: establishmentRef || null,
       });
 
-      newUser.save().then(savedUser => {
+      newUser.save().then((savedUser) => {
+        //Create JWT token
+        const token = jwt.sign(
+          { userId: savedUser._id, role: savedUser.role },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: '12h',
+          }
+        );
+
         res.json({
           result: true,
           user: {
@@ -66,9 +77,9 @@ router.post('/signup', (req, res) => {
             lastName: savedUser.lastName,
             email: savedUser.email,
             role: savedUser.role,
-            token: savedUser.token,
             establishmentRef: savedUser.establishmentRef,
           },
+          token, //JWT token
         });
       });
     } else {
@@ -97,16 +108,22 @@ router.post('/auth', async (req, res) => {
     if (!passwordMatch) {
       return res.status(403).json({ result: false, error: 'Mot de passe incorrect' });
     }
+
+    //Create JWT token
+    const token = jwt.sign({ userId: data._id, role: data.role }, process.env.JWT_SECRET, {
+      expiresIn: '12h',
+    });
+
     // if user's found & password's ok send back user's infos to frontend
     res.json({
       result: true,
+      token, //JWT token
       user: {
         id: data._id,
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
         role: data.role,
-        token: data.token,
         establishmentRef: data.establishmentRef,
       },
     });
@@ -121,13 +138,15 @@ router.post('/auth', async (req, res) => {
 //   const users = await User.find();
 //   res.json({ result: true, users });
 // });
-//ROUTE UPDATE PROFILE
-router.put('/updateProfile', (req, res) => {
-  const { token, firstName, lastName, password, establishmentRef, email, phone } = req.body;
 
-  if (!token) {
+//ROUTE UPDATE PROFILE
+router.put('/updateProfile', authJwt, async (req, res) => {
+  const { firstName, lastName, password, establishmentRef, email, phone } = req.body;
+
+  /*if (!token) {
     return res.status(400).json({ result: false, error: 'Token requis pour identification' });
   }
+  */
 
   if (password && password.length < 6) {
     return res.json({ result: false, error: 'Password avec 6 éléments minimun' });
@@ -140,46 +159,44 @@ router.put('/updateProfile', (req, res) => {
     }
   }
 
+  /*
   // Chercher l’utilisateur par token
   User.findOne({ token })
     .then(user => {
       if (!user) {
         return res.status(404).json({ result: false, error: 'Utilisateur non trouvé' });
       }
+*/
 
-      const updatedFields = {};
-      if (firstName) updatedFields.firstName = firstName;
-      if (lastName) updatedFields.lastName = lastName;
-      if (email) updatedFields.email = email;
-      if (phone) updatedFields.phone = phone;
-      if (establishmentRef) updatedFields.establishmentRef = establishmentRef;
+  const updatedFields = {};
+  if (firstName) updatedFields.firstName = firstName;
+  if (lastName) updatedFields.lastName = lastName;
+  if (email) updatedFields.email = email;
+  if (phone) updatedFields.phone = phone;
+  if (establishmentRef) updatedFields.establishmentRef = establishmentRef;
+  if (password) updatedFields.password = bcrypt.hashSync(password, 10);
 
-      if (password) updatedFields.password = bcrypt.hashSync(password, 10);
-
-      User.findByIdAndUpdate(user._id, updatedFields, { new: true })
-        .then(updatedProfile => {
-          res.json({
-            result: true,
-            user: {
-              id: updatedProfile._id,
-              firstName: updatedProfile.firstName,
-              lastName: updatedProfile.lastName,
-              email: updatedProfile.email,
-              role: updatedProfile.role,
-              token: updatedProfile.token,
-              establishmentRef: updatedProfile.establishmentRef,
-            },
-          });
-        })
-        .catch(err => {
-          console.log(err);
-          res.status(500).json({ result: false, error: 'Erreur serveur' });
-        });
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ result: false, error: 'Erreur serveur' });
+  try {
+    const updatedProfile = await User.findByIdAndUpdate(
+      req.userId, // JWT token
+      updatedFields,
+      { new: true }
+    );
+    res.json({
+      result: true,
+      user: {
+        id: updatedProfile._id,
+        firstName: updatedProfile.firstName,
+        lastName: updatedProfile.lastName,
+        email: updatedProfile.email,
+        role: updatedProfile.role,
+        establishmentRef: updatedProfile.establishmentRef,
+      },
     });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ result: false, error: 'Erreur serveur' });
+  }
 });
 
 module.exports = router;

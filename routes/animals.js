@@ -9,13 +9,14 @@ const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 const { setPriority } = require('../modules/setPriority');
 const { checkRoleCivil } = require('../middleware/checkRoleCivil');
-const { getUserIdWithToken } = require('../middleware/getUserIdWithToken');
 
-router.get('/civil/:token', checkRoleCivil, (req, res) => {
+const authJwt = require('../middleware/JWT'); // jwt middleware
+
+router.get('/civil', authJwt, checkRoleCivil, (req, res) => {
   // req.user vient du middleware checkRoleCivil (req.user = user).
   // Pour chercher les animaux de cet utilisateur,
   // on doit utiliser req.user._id car Mongo attend un ObjectId.
-  Animal.find({ reporter: req.user._id })
+  Animal.find({ reporter: req.userId })
     .sort({ date: -1 })
     .then((data) => {
       if (!data || data.length === 0) {
@@ -57,17 +58,64 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/add', getUserIdWithToken, async (req, res) => {
+router.post('/add', authJwt, async (req, res) => {
+  console.log('req.files:', req.files); //debug
+  console.log('req.body:', req.body);//debug
+  
+  let parsedData;
+  try {
+    parsedData = JSON.parse(req.body.data);
+  } catch (err) {
+    return res.status(400).json({
+      result: false,
+      error: 'Format des données invalide.',
+    });
+  }
+
+  let { location, animalType, state, title, desc } = parsedData;
+
+  try {
+    //transforme string to json if needed
+    if (typeof location === 'string') {
+      location = JSON.parse(location);
+    }
+    if (typeof state === 'string') {
+      state = JSON.parse(state);
+    }
+  } catch (err) {
+    return res.status(400).json({
+      result: false,
+      error: 'Format des données invalide.',
+    });
+  }
+
   if (
-    !checkBody(req.data, ['location', 'animalType', 'state', 'title', 'desc']) ||
+    !checkBody({ location, animalType, state, title, desc }, [
+      'location',
+      'animalType',
+      'state',
+      'title',
+      'desc',
+    ]) ||
     !req.files.photoReport ||
     !req.userId
   ) {
-    return res.status(400).json({ result: false, error: 'Des informations sont manquantes.' });
+    return res.status(400).json({
+      result: false,
+      error: 'Des informations sont manquantes.',
+    });
   }
 
+  /*
+  if (!Array.isArray(state)) {
+    return res.status(400).json({
+      result: false,
+      error: 'state doit être un tableau',
+    });
+  }
+  */
+
   let photoUrl = '';
-  const { location, animalType, state, title, desc } = req.data;
 
   try {
     // Deplacement du fichier uploadé vers un dossier temporaire
@@ -85,6 +133,7 @@ router.post('/add', getUserIdWithToken, async (req, res) => {
       return res.status(500).json({ result: false, error: "Erreur lors de l'upload de la photo" });
     }
     console.log('id', req.userId);
+
     const priority = setPriority(state);
     const newAnimal = new Animal({
       location,
@@ -113,7 +162,12 @@ router.post('/add', getUserIdWithToken, async (req, res) => {
 // Route PUT /animals/:id
 // Permet à un agent de mettre à jour le statut d’un signalement
 // et d’ajouter une entrée dans l’historique (history)
-router.put('/:id', async (req, res) => {
+router.put('/:id', authJwt, async (req, res) => {
+  //Check user role
+  if (req.role !== 'agent') {
+    return res.status(403).json({ error: 'Accès interdit' });
+  }
+
   try {
     // ─────────────────────────────────────────────
     // 1) Récupération des données de la requête
@@ -126,7 +180,8 @@ router.put('/:id', async (req, res) => {
     // status      → nouveau / en cours / terminé
     // description → commentaire de l’agent
     // userId      → identifiant de l’agent
-    const { status, description, userId } = req.body || {};
+    const { status, description } = req.body || {};
+    const userId = req.userId; // taken from authJwt middleware
 
     // ─────────────────────────────────────────────
     // 2) Vérification des champs obligatoires
