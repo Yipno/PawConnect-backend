@@ -11,6 +11,7 @@ router.get('/:id', async (req, res) => {
     });
     res.status(200).json({ result: true, notifications });
   } catch (error) {
+    console.error('Error fetching notifications:', error);
     res
       .status(500)
       .json({ message: 'Erreur lors de la récupération des notifications', error: error.message });
@@ -22,13 +23,13 @@ router.get('/:id', async (req, res) => {
 router.patch('/:id/read', async (req, res) => {
   // id de la notification
   const { id } = req.params;
+
   try {
     // cherche la notification et la met a jour
     const notification = await Notification.findByIdAndUpdate(
-      {
-        id,
-        recipient: req.userId,
-      },
+      id,
+      // recipient: req.userId,
+
       { read: true }, // passe read en true
       { new: true } // retourne le document mis a jour
     );
@@ -45,9 +46,9 @@ router.patch('/:id/read', async (req, res) => {
 
 // Marque toutes les notifications non lues d'un utilisateur comme lues
 // TODO AJOUTER JWT ICI
-router.patch('/read-all', async (req, res) => {
+router.patch('/read-all/:id', async (req, res) => {
   try {
-    await Notification.updateMany({ recipient: req.userId, read: false }, { read: true });
+    await Notification.updateMany({ recipient: req.params.id, read: false }, { read: true });
     res.status(200).json({ result: true });
   } catch (error) {
     res

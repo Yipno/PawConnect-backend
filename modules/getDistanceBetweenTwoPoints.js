@@ -1,6 +1,7 @@
-export function getDistanceBetweenTwoPoints(coord1, coord2) {
+function getDistanceBetweenTwoPoints(coord1, coord2) {
   if (!coord1 || !coord2) return null;
   const R = 6371; // rayon de la Terre en km
+  const toRad = deg => (deg * Math.PI) / 180;
   const dLat = toRad(coord2.latitude - coord1.latitude);
   const dLon = toRad(coord2.longitude - coord1.longitude);
 
@@ -14,3 +15,5 @@ export function getDistanceBetweenTwoPoints(coord1, coord2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // nombre en km, par ex 1.234567
 }
+
+module.exports = getDistanceBetweenTwoPoints;
