@@ -16,7 +16,7 @@ const getProsToNotifyNewReport = async report => {
       { latitude: establishment.location.lat, longitude: establishment.location.long },
       { latitude: report.location.lat, longitude: report.location.long }
     );
-    if (distance !== null && distance < 30) {
+    if (distance !== null && distance < 35) {
       prosToNotify.push(...establishment.agents);
     }
   }

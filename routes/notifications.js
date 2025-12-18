@@ -4,7 +4,6 @@ const Notification = require('../models/notifications');
 const authJwt = require('../middleware/JWT');
 
 // Recupere les notifications d'un utilisateur
-// TODO AJOUTER JWT ICI a la place de :id et replacer req.params.id par req.userId
 router.get('/', authJwt, async (req, res) => {
   try {
     const notifications = await Notification.find({ recipient: req.userId }).sort({
@@ -20,7 +19,6 @@ router.get('/', authJwt, async (req, res) => {
 });
 
 // Marque une notification comme lue
-// TODO AJOUTER JWT ICI
 router.patch('/:id/read', authJwt, async (req, res) => {
   // id de la notification
   const { id } = req.params;
@@ -44,7 +42,6 @@ router.patch('/:id/read', authJwt, async (req, res) => {
 });
 
 // Marque toutes les notifications non lues d'un utilisateur comme lues
-// TODO AJOUTER JWT ICI
 router.patch('/read-all', authJwt, async (req, res) => {
   try {
     await Notification.updateMany({ recipient: req.userId, read: false }, { read: true });
