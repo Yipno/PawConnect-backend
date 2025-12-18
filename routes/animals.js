@@ -3,15 +3,16 @@ var router = express.Router();
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const uniqid = require('uniqid');
-
 const Animal = require('../models/animals');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 const { setPriority } = require('../modules/setPriority');
 const { checkRoleCivil } = require('../middleware/checkRoleCivil');
-const { getUserIdWithToken } = require('../middleware/getUserIdWithToken');
 const authJwt = require('../middleware/JWT');
 const mongoose = require('mongoose');
+const { getProsToNotifyNewReport } = require('../services/report.service');
+const { notifyUsers } = require('../services/notifications.service');
+// const { authJWT } = require('../middleware/authJWT');
 
 router.get('/civil', authJwt, checkRoleCivil, (req, res) => {
   // req.user vient du middleware checkRoleCivil (req.user = user).
@@ -158,6 +159,17 @@ router.post('/add', authJwt, async (req, res) => {
 
     const result = await newAnimal.save();
     console.log('newAnimal', result);
+
+    // Appelle le service pour selectionner les pros à notifier
+    const prosToNotify = await getProsToNotifyNewReport(result);
+    // Appelle le service pour envoyer les notifications aux pros
+    await notifyUsers({
+      recipients: prosToNotify,
+      type: 'NEW_REPORT',
+      message: 'Un nouveau signalement a été effectué à proximité de votre établissement.',
+      reportId: result._id,
+    });
+
     res.status(200).json({ result: true, animal: result });
   } catch (err) {
     console.error(err);
@@ -166,7 +178,7 @@ router.post('/add', authJwt, async (req, res) => {
 });
 
 // Route PUT /animals/:id
-// Permet à un agent de mettre à jour le statut d’un signalement
+// Permet à un agent de mettre à jour le statut d’un signalement par som id
 // et d’ajouter une entrée dans l’historique (history)
 router.put('/:id', authJwt, async (req, res) => {
   //Check user role
@@ -271,6 +283,14 @@ router.put('/:id', authJwt, async (req, res) => {
         error: 'Signalement introuvable',
       });
     }
+
+    // Envoi de la notification à l'utilisateur qui a fait le signalement
+    await notifyUsers({
+      recipients: [updated.reporter],
+      type: 'REPORT_UPDATE',
+      message: `Le statut de votre signalement "${updated.title}" a été mis à jour : ${status}.`,
+      reportId: updated._id,
+    });
 
     // ─────────────────────────────────────────────
     // 7) Réponse OK
