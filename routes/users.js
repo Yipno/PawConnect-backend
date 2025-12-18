@@ -125,7 +125,7 @@ router.post('/auth', async (req, res) => {
 
 //ROUTE UPDATE PROFILE
 router.put('/updateProfile', checkEmailUnique, (req, res) => {
-  const { token, firstName, lastName, password, establishmentRef, email, phone } = req.body;
+  const { token, firstName, lastName, password, establishment, email, phone } = req.body;
 
   if (!token) {
     return res.status(400).json({ result: false, error: 'Token requis pour identification' });
@@ -190,8 +190,8 @@ router.put('/updateProfile', checkEmailUnique, (req, res) => {
     }
 
     // option
-    if (establishmentRef !== undefined && establishmentRef !== user.establishmentRef) {
-      updatedFields.establishmentRef = establishmentRef || null;
+    if (establishment !== undefined && establishment !== user.establishment) {
+      updatedFields.establishment = establishment || null;
     }
 
     // verification si aucune modification pour éviter requetes inutiles
@@ -213,7 +213,7 @@ router.put('/updateProfile', checkEmailUnique, (req, res) => {
             email: updatedProfile.email,
             role: updatedProfile.role,
             token: updatedProfile.token,
-            establishmentRef: updatedProfile.establishmentRef,
+            establishment: updatedProfile.establishment,
           },
           message: 'Profil mis à jour',
         });
