@@ -49,23 +49,23 @@ router.get('/', async (req, res) => {
 
 // Route get /animals/:id
 // Permet de récupérer tous les signalements d’un utilisateur
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const userReports = await Animal.find({ reporter: id }).sort({ date: -1 });
-    res.json({ result: true, userReports });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ result: false, error: 'Erreur serveur' });
-  }
-});
+// router.get('/:id', async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const userReports = await Animal.find({ reporter: id }).sort({ date: -1 });
+//     res.json({ result: true, userReports });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ result: false, error: 'Erreur serveur' });
+//   }
+// });
 
 // Route POST /animals/add
 // Permet à un utilisateur de créer un nouveau signalement
 router.post('/add', authJwt, async (req, res) => {
   console.log('req.files:', req.files); //debug
-  console.log('req.body:', req.body);//debug
-  
+  console.log('req.body:', req.body); //debug
+
   let parsedData;
   try {
     parsedData = JSON.parse(req.body.data);
@@ -298,7 +298,7 @@ router.put('/:id', authJwt, async (req, res) => {
 // Route DELETE /animals/:id
 // Permet de supprimer un signalement par son ID
 // TODO AJOUTER UNE AUTHENTIFICATION
-router.delete('/:id',authJwt, async (req, res) => {
+router.delete('/:id', authJwt, async (req, res) => {
   const { id } = req.params;
   try {
     const deletedAnimal = await Animal.findByIdAndDelete(id);
@@ -312,12 +312,11 @@ router.delete('/:id',authJwt, async (req, res) => {
   }
 });
 
-// Route GET /animals/populate/:id
+// Route GET /animals/populate/
 // Permet de récupérer tous les signalements d’un utilisateur avec les infos de l'établissement associé
-router.get('/populate/:id',authJwt, async (req, res) => {
-  //const { id } = req.params;
+router.get('/populate/', authJwt, async (req, res) => {
   try {
-    const reports = await Animal.find({ reporter: id })
+    const reports = await Animal.find({ reporter: req.userId })
       .populate({
         path: 'establishment',
         select: 'name address location phone email logo url',
@@ -330,12 +329,15 @@ router.get('/populate/:id',authJwt, async (req, res) => {
   }
 });
 
-// Route Get /animals/agent/:id
+// Route Get /animals/agent
 // Recupere les signalements pris en charge par son etablissement et les nouveaux signalements
-router.get('/agent/:id',authJwt, async (req, res) => {
-  const { id } = req.params;
+router.get('/agent', authJwt, async (req, res) => {
+  if (req.role !== 'agent') {
+    return res.status(403).json({ error: 'Accès interdit' });
+  }
   try {
-    const user = await User.findById(id);
+    console.log('req.userId:', req.userId);
+    const user = await User.findById(req.userId);
     if (!user) {
       return res.status(404).json({ result: false, error: 'Utilisateur introuvable' });
     }
