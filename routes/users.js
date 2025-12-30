@@ -35,7 +35,7 @@ router.post('/signup', (req, res) => {
   }
 
   // Check if the user has not already been registered by this email
-  User.findOne({ email: req.body.email }).then(data => {
+  User.findOne({ email: req.body.email }).then((data) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
 
@@ -49,31 +49,14 @@ router.post('/signup', (req, res) => {
         establishment: establishment || null,
       });
 
-      newUser.save().then(savedUser => {
-        //Create JWT token
-        const token = jwt.sign(
-          { userId: savedUser._id, role: savedUser.role },
-          process.env.JWT_SECRET,
-          {
-            expiresIn: '12h',
-          }
-        );
-
-        res.json({
+      newUser.save().then(() => {
+        return res.json({
           result: true,
-          user: {
-            id: savedUser._id,
-            firstName: savedUser.firstName,
-            lastName: savedUser.lastName,
-            email: savedUser.email,
-            role: savedUser.role,
-            establishment: savedUser.establishment,
-          },
-          token, //JWT token
+          message: 'Utilisateur créé avec succès',
         });
       });
     } else {
-      res.status(400).json({ result: false, error: 'Cet email est déjà utilisé.' });
+      res.status(400).json({ result: false, error: 'Cet email est déjà utilisé' });
     }
   });
 });
