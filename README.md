@@ -65,7 +65,7 @@ PORT=4000
 NODE_ENV=development
 
 # MongoDB
-CONNECTION_STRING=mongodb+srv://user:pass@cluster.mongodb.net/pawconnect
+CONNECTION_STRING=mongodb+srv://...mongodb.net/pawconnect
 
 # Auth
 JWT_SECRET=une_cle_super_secrete
