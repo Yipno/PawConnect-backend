@@ -1,21 +1,18 @@
-
 [
-    
-    {
-  "location": { "lat": 48.865, "long": 2.349 },
-  "date": { "$date": "2025-12-08T17:00:00.000Z" },
-  "animalType": "chien",
-  "desc": "Chien trouvé devant la boulangerie",
-  "state": ["apeuré"],
-  "photoUrl": "",
-  "status": "nouveau",
-  "reporter": { "$oid": "6936fe386fb328f6ec180ea6" },
-  "handlers": [],
-  "history": []
-},
-
   {
-    "location": { "lat": 48.860, "long": 2.341 },
+    "location": { "lat": 48.865, "long": 2.349 },
+    "date": { "$date": "2025-12-08T17:00:00.000Z" },
+    "animalType": "chien",
+    "desc": "Chien trouvé devant la boulangerie",
+    "state": ["apeuré"],
+    "photoUrl": "",
+    "status": "nouveau",
+    "reporter": { "$oid": "6936fe386fb328f6ec180ea6" },
+    "handlers": [],
+    "history": []
+  },
+  {
+    "location": { "lat": 48.86, "long": 2.341 },
     "date": { "$date": "2025-12-09T10:30:00.000Z" },
     "animalType": "chat",
     "desc": "Chat errant aperçu près du parc",
@@ -39,5 +36,3 @@
     "history": []
   }
 ]
-
-

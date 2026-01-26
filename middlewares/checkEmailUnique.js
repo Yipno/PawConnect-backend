@@ -1,5 +1,4 @@
-const User = require('../models/users');
-
+const User = require('../models/User.model');
 
 module.exports = async (req, res, next) => {
   const { email } = req.body;
@@ -43,8 +42,8 @@ module.exports = async (req, res, next) => {
   }
 };
 
-
-{/*module.exports = (req, res, next) => {
+{
+  /*module.exports = (req, res, next) => {
   const { email, token } = req.body;
 
   // Pas d’email, pas de vérification
@@ -77,4 +76,5 @@ module.exports = async (req, res, next) => {
       next();
     });
   });
-};*/}
+};*/
+}

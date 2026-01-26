@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const animalSchema = mongoose.Schema({
+const animalSchema = new mongoose.Schema({
   location: { lat: Number, long: Number },
   date: Date,
   animalType: { type: String, enum: ['chat', 'chien'], required: true },
