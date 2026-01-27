@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const checkEmailUnique = require('../middleware/checkEmailUnique');
 
 const jwt = require('jsonwebtoken');
-const authJwt = require('../middleware/JWT');
+const authJwt = require('../middleware/authJWT');
 
 //SIGNUP ROUTE
 
@@ -35,7 +35,7 @@ router.post('/signup', (req, res) => {
   }
 
   // Check if the user has not already been registered by this email
-  User.findOne({ email: req.body.email }).then((data) => {
+  User.findOne({ email: req.body.email }).then(data => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
 
@@ -187,7 +187,7 @@ router.put('/updateProfile', authJwt, checkEmailUnique, async (req, res) => {
     const updatedProfile = await User.findByIdAndUpdate(
       req.userId, // JWT token
       updatedFields,
-      { new: true }
+      { new: true },
     );
     res.json({
       result: true,

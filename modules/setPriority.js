@@ -13,7 +13,7 @@ function setPriority(array = []) {
     sociable: 0,
     sain: 0,
   };
-  if (array.includes('blesse' || array.includes('danger'))) return 'urgent';
+  if (array.includes('blesse') || array.includes('danger')) return 'urgent';
   const score = array.reduce((total, state) => total + (priorityValues[state] || 0), 0);
   if (score >= 80) return 'urgent';
   if (score >= 60) return 'important';

@@ -1,14 +1,14 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const uniqid = require('uniqid');
-const Animal = require('../models/animals');
+const Animal = require('../models/Animal.model');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 const { setPriority } = require('../modules/setPriority');
 const { checkRoleCivil } = require('../middleware/checkRoleCivil');
-const authJwt = require('../middleware/JWT');
+const authJwt = require('../middleware/authJWT');
 const mongoose = require('mongoose');
 const { getProsToNotifyNewReport } = require('../services/report.service');
 const { notifyUsers } = require('../services/notifications.service');
@@ -269,7 +269,7 @@ router.put('/:id', authJwt, async (req, res) => {
       {
         // new: true → renvoie le document après mise à jour
         new: true,
-      }
+      },
     );
 
     // ─────────────────────────────────────────────

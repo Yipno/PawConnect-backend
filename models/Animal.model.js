@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const animalSchema = mongoose.Schema({
+const animalSchema = new mongoose.Schema({
   location: { lat: Number, long: Number },
   date: Date,
   animalType: { type: String, enum: ['chat', 'chien'], required: true },
@@ -10,7 +10,7 @@ const animalSchema = mongoose.Schema({
   priority: { type: String, enum: ['urgent', 'important', 'modere', 'faible'] },
   photoUrl: String,
   status: { type: String, enum: ['nouveau', 'en cours', 'terminé'], index: true },
-  reporter: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+  reporter: { type: mongoose.Schema.Types.ObjectId, ref: 'users', index: true },
   establishment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'establishments',
