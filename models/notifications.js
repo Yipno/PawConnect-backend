@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const notificationSchema = mongoose.Schema(
+const notificationSchema = new mongoose.Schema(
   {
     type: {
       type: String,
@@ -28,7 +28,7 @@ const notificationSchema = mongoose.Schema(
       ref: 'animals',
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Notification = mongoose.model('notifications', notificationSchema);

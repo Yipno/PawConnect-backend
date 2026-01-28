@@ -1,4 +1,4 @@
-const Establishment = require('../models/establishments');
+const Establishment = require('../models/Establishment.model');
 const getDistanceBetweenTwoPoints = require('../modules/getDistanceBetweenTwoPoints');
 
 const getProsToNotifyNewReport = async report => {
@@ -14,7 +14,7 @@ const getProsToNotifyNewReport = async report => {
   for (const establishment of establishments) {
     const distance = getDistanceBetweenTwoPoints(
       { latitude: establishment.location.lat, longitude: establishment.location.long },
-      { latitude: report.location.lat, longitude: report.location.long }
+      { latitude: report.location.lat, longitude: report.location.long },
     );
     if (distance !== null && distance < 35) {
       prosToNotify.push(...establishment.agents);

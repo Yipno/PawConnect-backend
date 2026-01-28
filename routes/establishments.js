@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-const Establishment = require('../models/establishments');
+const express = require('express');
+const router = express.Router();
+const Establishment = require('../models/Establishment.model');
 
 router.get('/', async (req, res) => {
   const result = await Establishment.find();

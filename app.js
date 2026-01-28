@@ -5,16 +5,18 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+var indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth.routes');
+var usersRouter = require('./routes/users');
 const uploadRouter = require('./routes/upload.routes');
 const animalsRouter = require('./routes/animals.routes');
-const establishmentsRouter = require('./routes/establishments');
-const notificationsRouter = require('./routes/notifications');
+var establishmentsRouter = require('./routes/establishments');
+var notificationsRouter = require('./routes/notifications');
+const errorHandler = require('./middlewares/errorHandler');
 
-const app = express();
+var app = express();
 const fileUpload = require('express-fileupload');
-app.use(fileUpload());
+app.use(fileUpload()); // TODO A DEPLACER SUR LA ROUTE UPLOAD
 const cors = require('cors');
 app.use(cors());
 
@@ -25,9 +27,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/upload', uploadRouter);
 app.use('/animals', animalsRouter);
 app.use('/establishments', establishmentsRouter);
 app.use('/notifications', notificationsRouter);
+
+app.use(errorHandler);
+
 module.exports = app;

@@ -1,7 +1,7 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-const User = require('../models/users');
+const User = require('../models/User.model');
 const { checkBody } = require('../modules/checkBody');
 const bcrypt = require('bcrypt');
 // const checkEmailUnique = require('../middleware/checkEmailUnique');
@@ -11,100 +11,101 @@ const authJwt = require('../middleware/authJWT');
 
 //SIGNUP ROUTE
 
-router.post('/signup', (req, res) => {
-  if (!checkBody(req.body, ['lastName', 'firstName', 'email', 'password'])) {
-    res.status(400).json({ result: false, error: 'Des informations sont manquantes.' });
-    return;
-  }
+// router.post('/signup', (req, res) => {
+//   if (!checkBody(req.body, ['lastName', 'firstName', 'email', 'password'])) {
+//     res.status(400).json({ result: false, error: 'Des informations sont manquantes.' });
+//     return;
+//   }
 
-  const { lastName, firstName, email, password, role, establishment } = req.body;
+//   const { lastName, firstName, email, password, role, establishment } = req.body;
 
-  // Check the email format
-  const EMAIL_REGEX =
-    /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\-]*\.)+[a-z]{2,}$/i;
-  if (!EMAIL_REGEX.test(email)) {
-    return res.status(400).json({ result: false, error: 'Email invalide.' });
-  }
+//   // Check the email format
+//   const EMAIL_REGEX =
+//     /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\-]*\.)+[a-z]{2,}$/i;
+//   if (!EMAIL_REGEX.test(email)) {
+//     return res.status(400).json({ result: false, error: 'Email invalide.' });
+//   }
 
-  // Check the length of password
-  if (password.length < 6) {
-    return res.status(400).json({
-      result: false,
-      error: 'Le mot de passe doit contenir au moins 6 caractères.',
-    });
-  }
+//   // Check the length of password
+//   if (password.length < 6) {
+//     return res.status(400).json({
+//       result: false,
+//       error: 'Le mot de passe doit contenir au moins 6 caractères.',
+//     });
+//   }
 
-  // Check if the user has not already been registered by this email
-  User.findOne({ email: req.body.email }).then(data => {
-    if (data === null) {
-      const hash = bcrypt.hashSync(req.body.password, 10);
+//   // Check if the user has not already been registered by this email
+//   User.findOne({ email: req.body.email }).then(data => {
+//     if (data === null) {
+//       const hash = bcrypt.hashSync(req.body.password, 10);
 
-      const newUser = new User({
-        lastName,
-        firstName,
-        email,
-        password: hash,
-        createdAt: Date.now(),
-        role: role || 'civil',
-        establishment: establishment || null,
-      });
+//       const newUser = new User({
+//         lastName,
+//         firstName,
+//         email,
+//         password: hash,
+//         createdAt: Date.now(),
+//         role: role || 'civil',
+//         establishment: establishment || null,
+//       });
 
-      newUser.save().then(() => {
-        return res.json({
-          result: true,
-          message: 'Utilisateur créé avec succès',
-        });
-      });
-    } else {
-      res.status(400).json({ result: false, error: 'Cet email est déjà utilisé' });
-    }
-  });
-});
+//       newUser.save().then(() => {
+//         return res.json({
+//           result: true,
+//           message: 'Utilisateur créé avec succès',
+//         });
+//       });
+//     } else {
+//       res.status(400).json({ result: false, error: 'Cet email est déjà utilisé' });
+//     }
+//   });
+// });
+// const { login } = require('../controllers/auth.controller');
+// // ROUTE LOGIN
+// router.post('/login', login);
+// router.post('/auth', async (req, res) => {
+//   if (!checkBody(req.body, ['email', 'password'])) {
+//     res.status(400).json({ result: false, error: 'Des informations sont manquantes.' });
+//     return;
+//   }
 
-// ROUTE LOGIN
-router.post('/auth', async (req, res) => {
-  if (!checkBody(req.body, ['email', 'password'])) {
-    res.status(400).json({ result: false, error: 'Des informations sont manquantes.' });
-    return;
-  }
+//   const { email, password } = req.body;
 
-  const { email, password } = req.body;
+//   try {
+//     // look for user
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(404).json({ result: false, error: 'Utilisateur introuvable' });
+//     }
 
-  try {
-    // look for user
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ result: false, error: 'Utilisateur introuvable' });
-    }
+//     const passwordMatch = bcrypt.compareSync(password, user.password);
+//     if (!passwordMatch) {
+//       return res.status(403).json({ result: false, error: 'Mot de passe incorrect' });
+//     }
 
-    const passwordMatch = bcrypt.compareSync(password, user.password);
-    if (!passwordMatch) {
-      return res.status(403).json({ result: false, error: 'Mot de passe incorrect' });
-    }
+//     //Create JWT token
+//     const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
+//       expiresIn: '12h',
+//     });
 
-    //Create JWT token
-    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: '12h',
-    });
-
-    // if user's found & password's ok send back user's infos to frontend
-    res.json({
-      result: true,
-      token, //JWT token
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-        establishment: user.establishment,
-      },
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ result: false, error: 'Probleme avec la base de données' });
-  }
-});
+//     // if user's found & password's ok send back user's infos to frontend
+//     res.json({
+//       result: true,
+//       token, //JWT token
+//       user: {
+//         id: user._id,
+//         firstName: user.firstName,
+//         lastName: user.lastName,
+//         email: user.email,
+//         role: user.role,
+//         establishment: user.establishment,
+//       },
+//     });
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ result: false, error: 'Probleme avec la base de données' });
+//   }
+// });
 
 // ROUTE TEST
 // router.get('/', async (req, res) => {
