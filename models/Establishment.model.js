@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const establishmentSchema = mongoose.Schema({
+const establishmentSchema = new mongoose.Schema({
   admin: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   name: { type: String, required: true },
   address: {

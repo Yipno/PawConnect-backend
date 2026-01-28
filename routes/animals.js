@@ -1,23 +1,21 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const uniqid = require('uniqid');
-const Animal = require('../models/animals');
-const User = require('../models/users');
+const Animal = require('../models/Animal.model');
+const User = require('../models/User.model');
 const { checkBody } = require('../modules/checkBody');
 const { setPriority } = require('../modules/setPriority');
-const { checkRoleCivil } = require('../middleware/checkRoleCivil');
-const authJwt = require('../middleware/JWT');
+const authJwt = require('../middlewares/JWT');
 const mongoose = require('mongoose');
 const { getProsToNotifyNewReport } = require('../services/report.service');
 const { notifyUsers } = require('../services/notifications.service');
 // const { authJWT } = require('../middleware/authJWT');
 
-router.get('/civil', authJwt, checkRoleCivil, (req, res) => {
+router.get('/civil', authJwt, (req, res) => {
   // req.user vient du middleware checkRoleCivil (req.user = user).
-  // Pour chercher les animaux de cet utilisateur,
-  // on doit utiliser req.user._id car Mongo attend un ObjectId.
+
   Animal.find({ reporter: req.userId })
     .sort({ date: -1 })
     .then(data => {
@@ -48,19 +46,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ result: false, error: 'Erreur serveur' });
   }
 });
-
-// Route get /animals/:id
-// Permet de récupérer tous les signalements d’un utilisateur
-// router.get('/:id', async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     const userReports = await Animal.find({ reporter: id }).sort({ date: -1 });
-//     res.json({ result: true, userReports });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ result: false, error: 'Erreur serveur' });
-//   }
-// });
 
 // Route POST /animals/add
 // Permet à un utilisateur de créer un nouveau signalement
@@ -269,7 +254,7 @@ router.put('/:id', authJwt, async (req, res) => {
       {
         // new: true → renvoie le document après mise à jour
         new: true,
-      }
+      },
     );
 
     // ─────────────────────────────────────────────
