@@ -22,8 +22,6 @@ async function getAgentReports(userEstablishment) {
   return reports;
 }
 
-module.exports = { getCivilianReports, getAgentReports };
-
 async function newReport(report) {
   const savedReport = await new Animal(report).save();
   return savedReport ? savedReport._id : null;
@@ -83,4 +81,11 @@ async function updateHistory(reportId, status, handler, payload) {
   return result;
 }
 
-module.exports = { newReport, isReporterValid, patchReportWithPhoto, updateHistory };
+module.exports = {
+  newReport,
+  isReporterValid,
+  patchReportWithPhoto,
+  updateHistory,
+  getCivilianReports,
+  getAgentReports,
+};

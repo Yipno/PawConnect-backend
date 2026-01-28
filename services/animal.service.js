@@ -55,7 +55,7 @@ async function updateHistory(reportId, status, action, handler) {
   if (!handlerInfos) {
     throw new Error('USER_NOT_FOUND');
   }
-  if (handlerInfos.establishmentId !== handler.establishmentId) {
+  if (handlerInfos.establishment !== handler.establishmentId) {
     throw new Error('INVALID_ESTABLISHMENT');
   }
   const payload = {

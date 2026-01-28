@@ -21,7 +21,7 @@ router.post('/new', async (req, res) => {
     agents: [id],
   });
   const result = await newEstablishment.save();
-  res.json({ result: true, result });
+  res.json({ result });
 });
 
 module.exports = router;
