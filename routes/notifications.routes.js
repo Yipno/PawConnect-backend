@@ -26,7 +26,7 @@ router.patch('/:id/read', authJwt, async (req, res) => {
   try {
     // cherche la notification et la met a jour
     const notification = await Notification.findByIdAndUpdate(
-      { _id: id, recipient: req.userId },
+      { _id: id },
       { read: true }, // passe read en true
       { new: true }, // retourne le document mis a jour
     );
