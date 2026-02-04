@@ -8,7 +8,7 @@ const logger = require('morgan');
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth.routes');
 const usersRouter = require('./routes/users');
-const animalsRouter = require('./routes/animals');
+const animalsRouter = require('./routes/animals.routes');
 const establishmentsRouter = require('./routes/establishments');
 const notificationsRouter = require('./routes/notifications');
 const errorHandler = require('./middlewares/errorHandler');
@@ -35,3 +35,4 @@ app.use('/notifications', notificationsRouter);
 app.use(errorHandler);
 
 module.exports = app;
+
