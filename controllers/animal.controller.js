@@ -3,9 +3,18 @@ const animalService = require('../services/animal.service');
 async function postNewReport(req, res, next) {
   const { title, desc, location, state, animalType } = req.body;
   const userId = req.userId;
+  const userRole = req.role;
 
   try {
-    const result = await animalService.newReport(userId, title, desc, location, state, animalType);
+    const result = await animalService.newReport(
+      userId,
+      userRole,
+      title,
+      desc,
+      location,
+      state,
+      animalType,
+    );
     // return reportId to proceed to photo upload
     return res.status(200).json(result);
   } catch (err) {

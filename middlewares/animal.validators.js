@@ -27,6 +27,7 @@ const validateReportBody = [
     .withMessage('TITLE_REQUIRED')
     .bail()
     .isString()
+    .isLength({ max: 200 })
     .withMessage('TITLE_INVALID')
     .trim()
     .notEmpty()
@@ -38,6 +39,7 @@ const validateReportBody = [
     .withMessage('DESCRIPTION_REQUIRED')
     .bail()
     .isString()
+    .isLength({ max: 2000 })
     .withMessage('DESCRIPTION_INVALID')
     .trim()
     .notEmpty()
@@ -57,7 +59,7 @@ const validateReportBody = [
     .exists()
     .withMessage('STATE_REQUIRED')
     .bail()
-    .isArray()
+    .isArray({ max: 10 })
     .withMessage('STATE_INVALID')
     .bail()
     .custom(states => {
@@ -135,10 +137,12 @@ const validateHistoryBody = [
     .withMessage('ACTION_REQUIRED')
     .bail()
     .isString()
+    .isLength({ max: 500 })
     .withMessage('ACTION_INVALID')
     .bail()
     .trim()
     .notEmpty()
+    .escape()
     .withMessage('ACTION_REQUIRED'),
 
   body('status')

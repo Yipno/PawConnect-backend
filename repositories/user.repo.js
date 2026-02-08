@@ -13,6 +13,11 @@ async function existsByMail(email) {
   return result !== null;
 }
 
+async function existsById(id) {
+  const result = await User.exists({ _id: id });
+  return result !== null;
+}
+
 async function findUserByMailWithPassword(email) {
   return await User.findOne({ email }).select('+password').lean();
 }
@@ -26,6 +31,7 @@ module.exports = {
   findUserById,
   findUserByMail,
   existsByMail,
+  existsById,
   findUserByMailWithPassword,
   createNewUser,
 };
