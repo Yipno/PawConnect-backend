@@ -1,7 +1,7 @@
 const Establishment = require('../models/Establishment.model');
 const getDistanceBetweenTwoPoints = require('../utils/getDistanceBetweenTwoPoints');
 
-const getProsToNotifyNewReport = async report => {
+const getRecipientsForNewReport = async report => {
   //? LOGIQUE DE NOTIFICATION AUX PROS LORS D'UN NOUVEAU REPORT
   //? Recuperer les pros des etablissements les plus proches (rayon de 30km)
   if (!report?.location?.lat || !report?.location?.long) {
@@ -24,4 +24,4 @@ const getProsToNotifyNewReport = async report => {
   return uniqueProsToNotify;
 };
 
-module.exports = { getProsToNotifyNewReport };
+module.exports = { getRecipientsForNewReport };

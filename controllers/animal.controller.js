@@ -1,5 +1,18 @@
 const animalService = require('../services/animal.service');
 
+async function getUserReports(req, res, next) {
+  const userId = req.userId;
+  const role = req.role;
+  const establishmentId = req.establishmentId || null;
+
+  try {
+    const reports = await animalService.getUserReports(userId, role, establishmentId);
+    return res.status(200).json({ reports });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function postNewReport(req, res, next) {
   const { title, desc, location, state, animalType } = req.body;
   const userId = req.userId;
@@ -50,4 +63,4 @@ async function updateHistory(req, res, next) {
   }
 }
 
-module.exports = { postNewReport, addPhotoToReport, updateHistory };
+module.exports = { getUserReports, postNewReport, addPhotoToReport, updateHistory };

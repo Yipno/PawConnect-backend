@@ -24,19 +24,15 @@ async function getAgentReports(userEstablishment) {
 
 async function newReport(report) {
   const savedReport = await new Animal(report).save();
-  return savedReport ? savedReport._id : null;
+  return savedReport ? savedReport : null;
 }
 
 async function isReporterValid(userId, reportId) {
   const result = await Animal.findById(reportId).select('reporter').lean();
   if (!result) {
-    throw new Error('REPORT_NOT_FOUND');
+    return false;
   }
-  if (String(result.reporter) === String(userId)) {
-    return true;
-  } else {
-    throw new Error('INVALID_REPORT');
-  }
+  return String(result.reporter) === String(userId);
 }
 
 async function patchReportWithPhoto(reportId, photoUrl) {

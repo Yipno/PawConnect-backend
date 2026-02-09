@@ -5,7 +5,7 @@ function errorHandler(err, req, res, next) {
     return res.status(err.httpStatus).json({ error: err.code });
   }
   console.error(err);
-  return res.status(500).json({ error: 'SERVER_ERROR' });
+  return res.status(500).json({ error: err.error || 'SERVER_ERROR' });
 }
 
 module.exports = errorHandler;
