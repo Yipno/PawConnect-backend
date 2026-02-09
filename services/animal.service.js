@@ -30,13 +30,17 @@ async function newReport(userId, userRole, title, desc, location, state, animalT
   if (!result) {
     throw new Error('REPORT_FAILED');
   }
-  const agentsToNotifity = await getRecipientsForNewReport(result);
-  await notificationService.notifyUsers({
-    recipients: agentsToNotifity,
-    type: 'NEW_REPORT',
-    message: 'Un nouveau signalement a été effectué à proximité de votre établissement.',
-    reportId: result._id,
-  });
+  try {
+    const agentsToNotify = await getRecipientsForNewReport(result);
+    await notificationService.notifyUsers({
+      recipients: agentsToNotify,
+      type: 'NEW_REPORT',
+      message: 'Un nouveau signalement a été effectué à proximité de votre établissement.',
+      reportId: result._id,
+    });
+  } catch (err) {
+    console.error('Failed to send notifications for new report:', err);
+  }
 
   return result._id;
 }
@@ -89,12 +93,16 @@ async function updateHistory(reportId, status, action, handler) {
     throw new Error('UPDATE_FAILED');
   }
 
-  await notificationService.notifyUsers({
-    recipients: [result.reporter],
-    type: 'REPORT_UPDATE',
-    message: `Le statut de votre signalement "${result.title}" a été mis à jour : ${status}.`,
-    reportId: result._id,
-  });
+  try {
+    await notificationService.notifyUsers({
+      recipients: [result.reporter],
+      type: 'REPORT_UPDATE',
+      message: `Le statut de votre signalement "${result.title}" a été mis à jour : ${status}.`,
+      reportId: result._id,
+    });
+  } catch (err) {
+    console.error('Failed to send notification for report update:', err);
+  }
 
   return result;
 }
