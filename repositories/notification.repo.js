@@ -20,7 +20,7 @@ async function markNotificationAsRead(recipientId, id) {
   return result;
 }
 
-async function markAllUserNotificationAsRead(recipientId) {
+async function markAllUserNotificationsAsRead(recipientId) {
   await Notification.updateMany({ recipient: recipientId, read: false }, { read: true });
 }
 
@@ -28,5 +28,5 @@ module.exports = {
   getNewUserNotifications,
   saveNewNotifications,
   markNotificationAsRead,
-  markAllUserNotificationAsRead,
+  markAllUserNotificationsAsRead,
 };

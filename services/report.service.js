@@ -1,27 +1,26 @@
 const Establishment = require('../models/Establishment.model');
-const getDistanceBetweenTwoPoints = require('../utils/getDistanceBetweenTwoPoints');
+const { getDistanceBetweenTwoPoints } = require('../utils/getDistanceBetweenTwoPoints');
 
 const getRecipientsForNewReport = async report => {
-  //? LOGIQUE DE NOTIFICATION AUX PROS LORS D'UN NOUVEAU REPORT
-  //? Recuperer les pros des etablissements les plus proches (rayon de 30km)
+  // Find agents from nearby establishments (within 35km radius) to notify
   if (!report?.location?.lat || !report?.location?.long) {
-    throw new Error('location est manquante dans le report');
+    throw new Error('MISSING_REPORT_LOCATION');
   }
 
   const establishments = await Establishment.find().select('location agents');
 
-  const prosToNotify = [];
+  const agentsToNotify = [];
   for (const establishment of establishments) {
     const distance = getDistanceBetweenTwoPoints(
       { latitude: establishment.location.lat, longitude: establishment.location.long },
       { latitude: report.location.lat, longitude: report.location.long },
     );
     if (distance !== null && distance < 35) {
-      prosToNotify.push(...establishment.agents);
+      agentsToNotify.push(...establishment.agents);
     }
   }
-  const uniqueProsToNotify = [...new Set(prosToNotify.map(pro => pro.toString()))];
-  return uniqueProsToNotify;
+  const uniqueAgentIds = [...new Set(agentsToNotify.map(agent => agent.toString()))];
+  return uniqueAgentIds;
 };
 
 module.exports = { getRecipientsForNewReport };

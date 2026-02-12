@@ -54,14 +54,14 @@ async function updateHistory(reportId, status, handler, payload) {
   const result = await Animal.findByIdAndUpdate(
     reportId,
     {
-      // Mise à jour du statut
+      // Update status and assignment
       $set: {
         status,
         establishment: handler.establishmentId,
         currentHandler: handler.userId,
       },
 
-      // Ajout de l’entrée d’historique AU DÉBUT du tableau
+      // Prepend history entry to the beginning of the array
       $push: {
         history: {
           $each: [payload],
@@ -70,7 +70,7 @@ async function updateHistory(reportId, status, handler, payload) {
       },
     },
     {
-      // new: true → renvoie le document après mise à jour
+      // new: true returns the document after update
       new: true,
     },
   );

@@ -10,7 +10,7 @@ const uploadRouter = require('./routes/upload.routes');
 const animalsRouter = require('./routes/animals.routes');
 const establishmentsRouter = require('./routes/establishments.routes');
 const notificationsRouter = require('./routes/notifications.routes');
-const errorHandler = require('./middlewares/errorHandler');
+const errorHandler = require('./middlewares/error.middleware');
 const { globalLimiter } = require('./utils/rateLimiter');
 
 const app = express();

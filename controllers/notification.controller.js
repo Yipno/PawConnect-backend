@@ -22,11 +22,11 @@ async function markUserNotificationAsRead(req, res, next) {
   }
 }
 
-async function markAllUserNotificationAsRead(req, res, next) {
+async function markAllUserNotificationsAsRead(req, res, next) {
   const userId = req.userId;
 
   try {
-    await notificationService.markAllUserNotificationAsRead(userId);
+    await notificationService.markAllUserNotificationsAsRead(userId);
     return res.status(200).json({ result: true });
   } catch (err) {
     next(err);
@@ -36,5 +36,5 @@ async function markAllUserNotificationAsRead(req, res, next) {
 module.exports = {
   getAllNewNotifications,
   markUserNotificationAsRead,
-  markAllUserNotificationAsRead,
+  markAllUserNotificationsAsRead,
 };

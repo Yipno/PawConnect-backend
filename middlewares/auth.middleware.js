@@ -13,7 +13,7 @@ const authJwt = (req, res, next) => {
 
   //Check if the token is present in the request headers
   if (!authHeader) {
-    return next(new AuthError('TOKEN_MISSING', 'Token manquant', 401));
+    return next(new AuthError('TOKEN_MISSING', 'Token missing', 401));
   }
 
   // Expect "Bearer <token>"

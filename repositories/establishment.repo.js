@@ -5,4 +5,13 @@ async function existsById(establishmentId) {
   return result !== null;
 }
 
-module.exports = { existsById };
+async function findAll() {
+  return await Establishment.find().lean();
+}
+
+async function createEstablishment(establishment) {
+  const saved = await new Establishment(establishment).save();
+  return saved;
+}
+
+module.exports = { existsById, findAll, createEstablishment };

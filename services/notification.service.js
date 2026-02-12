@@ -2,8 +2,6 @@ const notificationRepo = require('../repositories/notification.repo');
 const { assertValidObjectId, assertUserExists } = require('../utils/validators');
 
 async function notifyUsers({ recipients, type, message, reportId }) {
-  // Envoi de notifications aux utilisateurs
-
   const notifications = recipients.map(userId => ({
     recipient: userId,
     type,
@@ -33,10 +31,10 @@ async function markNotificationAsRead(userId, notificationId) {
   }
 }
 
-async function markAllUserNotificationAsRead(userId) {
+async function markAllUserNotificationsAsRead(userId) {
   // check ownership of notifications to update
   await assertUserExists(userId);
-  await notificationRepo.markAllUserNotificationAsRead(userId);
+  await notificationRepo.markAllUserNotificationsAsRead(userId);
 }
 
 // async function deleteReadNotifications() {
@@ -47,5 +45,5 @@ module.exports = {
   notifyUsers,
   getNewUserNotifications,
   markNotificationAsRead,
-  markAllUserNotificationAsRead,
+  markAllUserNotificationsAsRead,
 };

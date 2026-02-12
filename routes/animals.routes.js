@@ -6,18 +6,15 @@ const {
   validatePhotoURL,
 } = require('../middlewares/animal.validators');
 const controller = require('../controllers/animal.controller');
-const { rateLimiter } = require('../utils/rateLimiter');
-const authJWT = require('../middlewares/authJWT');
+const { apiLimiter } = require('../utils/rateLimiter');
+const authJWT = require('../middlewares/auth.middleware');
 
-router.get('/me', authJWT, rateLimiter, controller.getUserReports);
+router.get('/me', authJWT, apiLimiter, controller.getUserReports);
 
-// POST new report without the picture
-router.post('/new', authJWT, rateLimiter, validateReportBody, controller.postNewReport);
+router.post('/', authJWT, apiLimiter, validateReportBody, controller.postNewReport);
 
-// Add the pictureURL to the report by ID
-router.patch('/:id/addPhoto', authJWT, rateLimiter, validatePhotoURL, controller.addPhotoToReport);
+router.patch('/:id/photo', authJWT, apiLimiter, validatePhotoURL, controller.addPhotoToReport);
 
-// Update the history of a report by ID
-router.patch('/:id/update', authJWT, rateLimiter, validateHistoryBody, controller.updateHistory);
+router.patch('/:id', authJWT, apiLimiter, validateHistoryBody, controller.updateHistory);
 
 module.exports = router;

@@ -72,12 +72,12 @@ async function updateHistory(reportId, status, action, handler) {
 
   assertValidObjectId(handler.establishmentId, 'INVALID_ESTABLISHMENT_ID');
 
-  const handlerInfos = await userRepo.findUserById(handler.userId);
-  if (!handlerInfos) {
+  const handlerDetails = await userRepo.findUserById(handler.userId);
+  if (!handlerDetails) {
     throw new Error('USER_NOT_FOUND');
   }
 
-  if (String(handlerInfos.establishment) !== String(handler.establishmentId)) {
+  if (String(handlerDetails.establishment) !== String(handler.establishmentId)) {
     throw new Error('INVALID_ESTABLISHMENT');
   }
 

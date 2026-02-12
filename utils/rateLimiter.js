@@ -9,15 +9,15 @@ const globalLimiter = rateLimit({
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 5,
-  message: { error: 'TOO_MANY_ATTEMPT' },
+  message: { error: 'TOO_MANY_ATTEMPTS' },
 });
 
-const rateLimiter = rateLimit({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 15,
   message: {
-    error: 'TOO_MANY_ATTEMPT',
+    error: 'TOO_MANY_ATTEMPTS',
   },
 });
 
-module.exports = { globalLimiter, authLimiter, rateLimiter };
+module.exports = { globalLimiter, authLimiter, apiLimiter };

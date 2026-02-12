@@ -1,4 +1,4 @@
-// ALGO DE CALCUL DE PRIORITÉ EN FONCTION DES STATUS SIGNALÉS
+// Priority scoring algorithm based on reported animal state flags
 function setPriority(array = []) {
   if (array.length === 0) return 'faible';
   const priorityValues = {

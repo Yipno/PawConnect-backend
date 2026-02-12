@@ -1,6 +1,6 @@
 const { body, validationResult } = require('express-validator');
 
-// Tableau de middleware
+// Validation middleware chain
 const validateLoginBody = [
   body('email')
     .exists()
@@ -36,7 +36,7 @@ const validateLoginBody = [
   },
 ];
 
-// Tableau de middleware
+// Validation middleware chain
 const validateSignupBody = [
   body('lastName')
     .exists()
