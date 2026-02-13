@@ -8,10 +8,10 @@ function errorHandler(err, req, res, next) {
       .json({ error: err.code, message: err.message, details: err.details || [] });
   }
   console.error(err);
-  // Normalize unexpected errors to avoid exposing internals.
+  // Unexpected failures always return a client-safe payload.
   return res
     .status(500)
-    .json({ error: err.error || 'SERVER_ERROR', message: err.message, details: [] });
+    .json({ error: 'SERVER_ERROR', message: 'Internal server error', details: [] });
 }
 
 module.exports = errorHandler;
