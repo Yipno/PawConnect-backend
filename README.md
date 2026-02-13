@@ -1,149 +1,134 @@
-# 🐾 PawConnect – Backend API (MVP)
+# PawConnect Backend
 
-Backend REST de PawConnect, responsable de la gestion des utilisateurs, des signalements, de l’authentification et du stockage des données. Ce dépôt utilise Node.js + Express et MongoDB (via Mongoose). Le serveur démarre via `node ./bin/www` (script `npm start`).
+API REST Node.js/Express pour PawConnect: authentification, signalements, notifications et gestion des établissements.
 
----
+## Fonctionnalités
+- Auth JWT (`/auth/login`, `/auth/signup`)
+- Gestion des signalements (`/animals`)
+- Notifications utilisateur (`/notifications`)
+- Signature Cloudinary pour upload côté frontend (`/upload/signature`)
+- Limitation de débit (`globalLimiter`, `authLimiter`, `apiLimiter`)
+- Gestion d’erreurs unifiée via `AppError`
 
-## ⚙️ Fonctionnalités clés
+## Stack
+- Node.js
+- Express
+- MongoDB + Mongoose
+- JWT (`jsonwebtoken`)
+- Validation (`express-validator`)
+- Sécurité (`helmet`, `express-rate-limit`)
+- Upload media signé (`cloudinary`)
 
-1. Authentification & sécurité
-   - Inscription / connexion utilisateur
-   - Authentification via JWT (jsonwebtoken)
-   - Middleware de protection des routes (voir `middleware/`)
-   - Gestion des rôles (citoyen / agent) gérée dans les middlewares et modèles
-
-2. Gestion des signalements
-   - Création, lecture, mise à jour, suppression (routes dans `routes/`)
-   - Attribution d’un agent à un signalement (logique dans `services/` / `modules/`)
-   - Historique des changements de statut (ex. `test-data/` / modèles d’action)
-
-3. Upload & médias
-   - Upload de photos de signalement (utilisation d’`express-fileupload`)
-   - Stockage via Cloudinary (dépendance `cloudinary`) — vérifier la configuration dans `services/` ou `modules/`
-
-4. Base de données
-   - MongoDB + Mongoose (`models/` contient les schémas : User, Report, etc.)
-   - Connexion et logique DB centralisées dans `app.js` / modules de config
-
----
-
-## 🛠 Stack technique – Backend (observé)
-
-- Runtime : Node.js  
-- Framework : Express.js  
-- Base de données : MongoDB (Mongoose)  
-- Auth : JWT (jsonwebtoken)  
-- Uploads : cloudinary + express-fileupload  
-- Hashing : bcrypt  
-- Utilitaires : uid2 / uniqid / morgan  
-- Tests : jest, supertest  
-- Démarrage : `node ./bin/www` (`npm start`)  
-- Déploiement possible : Vercel / Railway / Render (fichier `vercel.json` présent)
-
----
-
-## 🚀 Installation & Lancement
-
-1. Pré-requis
-   - Node.js (v18+ recommandé)
-   - MongoDB (local ou Atlas)
-
-2. Setup
+## Installation
 ```bash
-# Cloner le repo
-git clone https://github.com/Yipno/PawConnect-backend.git
-cd PawConnect-backend
-
-# Installer les dépendances
+cd backend
 npm install
 ```
 
-3. Configuration des variables d’environnement
-Créer un fichier `.env` à la racine (ne pas committer) avec au minimum :
-```
-PORT=4000
-NODE_ENV=development
+## Variables d’environnement
+Créer ton fichier local à partir de l’exemple:
 
-# MongoDB
-CONNECTION_STRING=mongodb+srv://...mongodb.net/pawconnect
-
-# Auth
-JWT_SECRET=une_cle_super_secrete
-JWT_EXPIRES_IN=7d
-
-# Cloudinary (si utilisé)
-# Option A
-CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-# Option B (séparé)
-CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
-```
-
-4. Lancer le serveur
 ```bash
-# production / start défini dans package.json
+cp .env.example .env
+```
+
+Puis compléter les valeurs dans `.env`.
+
+Contenu attendu (voir `backend/.env.example`):
+
+```env
+PORT=3000
+CONNECTION_STRING=your_mongodb_connection_string
+JWT_SECRET=replace_with_a_long_random_secret
+CLOUDINARY_URL=replace_with_your_cloudinary_url
+```
+
+Variables effectivement utilisées dans le code:
+- `PORT` (`bin/www`)
+- `CONNECTION_STRING` (`models/connection.js`)
+- `JWT_SECRET` (`middlewares/auth.middleware.js`, `services/auth.service.js`)
+- `CLOUDINARY_URL` (`controllers/upload.controller.js`)
+
+## Lancement
+```bash
 npm start
 ```
 
-Conseil pour le développement (auto-reload) :
-```bash
-# installer nodemon globalement ou en devDependency
-npx nodemon ./bin/www
-# ou ajouter un script "dev": "nodemon ./bin/www" dans package.json
+Le serveur démarre via `node ./bin/www`.
+
+## Architecture
+```text
+backend/
+  app.js                # bootstrap Express (middlewares, routes, error handler)
+  bin/www               # point d'entrée HTTP
+  controllers/          # orchestration HTTP -> service
+  services/             # logique métier
+  repositories/         # accès MongoDB
+  models/               # schémas Mongoose
+  middlewares/          # auth, validation, erreurs
+  errors/               # AppError + mapping code -> status HTTP
+  utils/                # utilitaires transverses
+  routes/               # définition des endpoints
 ```
 
----
+## Endpoints principaux
 
-## 📂 Structure du projet (extrait réel)
+### Auth
+- `POST /auth/signup`
+- `POST /auth/login`
 
-/
-├── app.js            # Configuration de l'application Express  
-├── bin/              # Script de démarrage (./bin/www)  
-├── routes/           # Déclaration des routes API  
-├── models/           # Schémas Mongoose (User, Report, ...)  
-├── middleware/       # Auth, validations, gestion d'erreurs  
-├── services/         # Logique métier (uploads, notifications, etc.)  
-├── modules/          # Helpers / modules réutilisables  
-├── public/           # Statiques / assets temporaires  
-├── tests/            # Tests unitaires / d'intégration  
-├── test-data/        # Données de seed / exemples  
-├── utils/            # Fonctions utilitaires  
-├── vercel.json       # Config déploiement Vercel (optionnel)  
-├── package.json
-└── yarn.lock
+### Signalements
+- `GET /animals/me` (JWT requis)
+- `POST /animals` (JWT requis, rôle `civil`)
+- `PATCH /animals/:id/photo` (JWT requis, reporter uniquement)
+- `PATCH /animals/:id` (JWT requis, rôle `agent`)
 
----
+### Notifications
+- `GET /notifications` (JWT requis)
+- `PATCH /notifications/:id/read` (JWT requis)
+- `PATCH /notifications/read-all` (JWT requis)
 
-## 🧪 Tests
+### Upload
+- `GET /upload/signature` (JWT requis)
 
-Le projet embarque Jest et Supertest en dépendances. `package.json` ne contient pas de script `test` par défaut — lancer les tests ainsi :
+### Etablissements
+- `GET /establishments`
+- `POST /establishments`
+
+## Authentification
+Header attendu sur routes protégées:
+
+```http
+Authorization: Bearer <token>
+```
+
+Le token contient:
+- `userId`
+- `role` (`civil` ou `agent`)
+- `establishmentId` (agents uniquement)
+
+## Format d’erreur
+Les erreurs métier passent par `AppError` et sont normalisées par `middlewares/error.middleware.js`:
+
+```json
+{
+  "error": "INVALID_INPUT",
+  "message": "Validation failed",
+  "details": []
+}
+```
+
+Codes usuels: `INVALID_INPUT`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `RATE_LIMITED`, `MISCONFIGURED`, `SERVER_ERROR`.
+
+## Rate limiting
+- Global: `100 req / minute`
+- Auth: `5 req / 15 minutes`
+- API métier: `15 req / 15 minutes`
+
+## Tests
+Jest/Supertest sont présents. Aucun script `test` n’est défini dans `package.json`.
+
+Exécution manuelle:
 ```bash
 npx jest
-# ou ajouter dans package.json : "test": "jest" puis npm test
 ```
-
----
-
-## 🔒 Sécurité & bonnes pratiques
-
-- Ne pas committer le fichier `.env`.
-- Protéger les routes sensibles via JWT et vérification de rôle dans les middlewares.
-- Stocker les secrets (JWT, Cloudinary) dans le provider de déploiement.
-- TODO : Ajouter rate-limiting si l’API est exposée publiquement.
-
----
-
-## 🛣 Roadmap (post‑MVP)
-
-- Notifications push / WebSockets pour mise à jour en temps réel
-- Dashboard admin (statistiques, modération)
-- Audit / logs d’actions et sécurité renforcée
-
----
-
-## 👤 Auteur
-
-Projet développé par Aubry & l'équipe PawConnect 
-Développeur Web & Mobile – Full Stack  
-Projet MVP réalisé dans le cadre d’un bootcamp de la Capsule, en 13 jours maximum et par une équipe de 5 developpeurs juniors.
