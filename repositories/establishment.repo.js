@@ -9,9 +9,13 @@ async function findAll() {
   return await Establishment.find().lean();
 }
 
+async function findById(establishmentId) {
+  return await Establishment.findById(establishmentId).lean();
+}
+
 async function createEstablishment(establishment) {
   const saved = await new Establishment(establishment).save();
   return saved;
 }
 
-module.exports = { existsById, findAll, createEstablishment };
+module.exports = { existsById, findAll, findById, createEstablishment };
