@@ -5,8 +5,10 @@ const { signup } = require('../controllers/auth.controller');
 const { validateLoginBody, validateSignupBody } = require('../middlewares/auth.validators');
 const { authLimiter } = require('../utils/rateLimiter');
 
-router.post('/login', authLimiter, validateLoginBody, login);
+router.use(authLimiter); // Apply rate limiter to all routes in this router
 
-router.post('/signup', authLimiter, validateSignupBody, signup);
+router.post('/login', validateLoginBody, login);
+
+router.post('/signup', validateSignupBody, signup);
 
 module.exports = router;

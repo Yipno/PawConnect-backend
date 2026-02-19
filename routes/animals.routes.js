@@ -9,12 +9,15 @@ const controller = require('../controllers/animal.controller');
 const { apiLimiter } = require('../utils/rateLimiter');
 const authJWT = require('../middlewares/auth.middleware');
 
-router.get('/me', authJWT, apiLimiter, controller.getUserReports);
+router.use(authJWT);
+router.use(apiLimiter);
 
-router.post('/', authJWT, apiLimiter, validateReportBody, controller.postNewReport);
+router.get('/me', controller.getUserReports);
 
-router.patch('/:id/photo', authJWT, apiLimiter, validatePhotoURL, controller.addPhotoToReport);
+router.post('/', validateReportBody, controller.postNewReport);
 
-router.patch('/:id', authJWT, apiLimiter, validateHistoryBody, controller.updateHistory);
+router.patch('/:id/photo', validatePhotoURL, controller.addPhotoToReport);
+
+router.patch('/:id', validateHistoryBody, controller.updateHistory);
 
 module.exports = router;
