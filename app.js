@@ -1,6 +1,7 @@
 require('dotenv').config();
 require('./models/connection');
 const express = require('express');
+const path = require('path');
 const logger = require('morgan');
 const helmet = require('helmet');
 
@@ -19,6 +20,7 @@ app.use(helmet());
 app.use(logger('dev'));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Keep this before routers so abuse protection applies to every endpoint.
 app.use(globalLimiter);
